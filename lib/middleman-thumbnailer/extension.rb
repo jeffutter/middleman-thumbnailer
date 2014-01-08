@@ -89,7 +89,7 @@ module Middleman
         files = Dir["#{images_dir_abs}/#{namespace}/*.{#{options[:filetypes].join(',')}}"]
 
         resource_list = files.map do |file|
-          path = file.gsub(@app.source_dir, '')
+          path = file.gsub(@app.source_dir+'/', '') # Image path shouldn't have leading /
           specs = ThumbnailGenerator.specs(path, dimensions)
           specs.map do |name, spec|
             resource = nil
@@ -132,15 +132,23 @@ module Middleman
         #TODO: caching
         if original_specs = @original_map[path_on_disk]
           original_file = original_specs[:original]
+          original_ext = File.extname(original_file)
+          
           spec = original_specs[:spec]
           if spec.has_key? :dimensions
-            image = ::Magick::Image.read(original_file).first
+            image = ::MiniMagick::Image.open(original_file)
             blob = nil
-            image.change_geometry(spec[:dimensions]) do |cols, rows, img|
-              img = img.resize(cols, rows)
-              img = img.sharpen(0.5, 0.5)
-              blob = img.to_blob
+            if original_ext == '.pdf'
+              image.depth('8')
+              image.alpha('off')
+              image.format("png", 0)
             end
+            image.combine_options do |i|
+              i.resize spec[:dimensions]
+              i.gravity "center"
+              i.crop "#{spec[:dimensions]}+0+0"
+            end
+            blob = image.to_blob
 
             unless blob.nil?
               status = 200
