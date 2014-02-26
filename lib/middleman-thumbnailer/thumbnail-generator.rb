@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 require 'fileutils'
+=======
+>>>>>>> c9ffd373c4399843e6d6f85eb59aad4f17bbd9ef
 require 'mini_magick'
 
 module Middleman
@@ -42,6 +45,8 @@ module Middleman
         # image = ::Magick::Image.read(origin).first
         specs.each do |name, spec|
           if spec.has_key? :dimensions then
+            # Reloads image for each run, less efficient than haivng this outside of the spec.each block
+            # but changing format remvoes the original temp file
             image = ::MiniMagick::Image.open(File.join(source_dir, origin))
 
             # image.change_geometry(spec[:dimensions]) do |cols, rows, img|
