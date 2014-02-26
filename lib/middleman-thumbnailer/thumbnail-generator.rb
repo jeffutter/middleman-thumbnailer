@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 require 'fileutils'
-=======
->>>>>>> c9ffd373c4399843e6d6f85eb59aad4f17bbd9ef
 require 'mini_magick'
 
 module Middleman
@@ -47,13 +44,13 @@ module Middleman
           if spec.has_key? :dimensions then
             # Reloads image for each run, less efficient than haivng this outside of the spec.each block
             # but changing format remvoes the original temp file
-            image = ::MiniMagick::Image.open(File.join(source_dir, origin))
+            image = ::MiniMagick::Image.open(origin)
 
             # image.change_geometry(spec[:dimensions]) do |cols, rows, img|
             #   img = img.resize(cols, rows)
             #   img = img.sharpen(0.5, 0.5)
             #   yield img, spec
-            original_ext = File.extname(File.join(source_dir, origin))
+            original_ext = File.extname(origin)
 
             if original_ext == '.pdf'
               image.depth('8')
@@ -71,14 +68,22 @@ module Middleman
       end
 
       def image_for_spec(origin, spec)
-        image = ::Magick::Image.read(origin).first
+        image = ::MiniMagick::Image.open(origin)
 
         if spec.has_key? :dimensions then
-          image.change_geometry(spec[:dimensions]) do |cols, rows, img|
-            img = img.resize(cols, rows)
-            img = img.sharpen(0.5, 0.5)
-            return img
-          end 
+          original_ext = File.extname(origin)
+
+          if original_ext == '.pdf'
+            image.depth('8')
+            image.alpha('off')
+            image.format("png", 0)
+          end
+          image.combine_options do |i|
+            i.resize spec[:dimensions]
+            i.gravity "center"
+            i.crop "#{spec[:dimensions]}+0+0"
+          end
+          # return image
         end
         return image
       end

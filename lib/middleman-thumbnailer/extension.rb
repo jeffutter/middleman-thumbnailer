@@ -35,7 +35,6 @@ module Middleman
           app.before_build do
             dir = File.join(source_dir, images_dir)
 
-
             files = DirGlob.glob(dir, namespace, options[:filetypes])
 
             files.each do |file|
