@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'mini_magick'
+require 'pry'
 
 module Middleman
   #actually creates the thumbnail names
@@ -58,9 +59,28 @@ module Middleman
               image.format("png", 0)
             end
             image.combine_options do |i|
-              i.resize spec[:dimensions]
-              i.gravity "center"
-              i.crop "#{spec[:dimensions]}+0+0"
+
+              dimensions = /(\d+)\D+(\d+)/.match(spec[:dimensions])
+              orig_y = image[:height].to_f
+              orig_x = image[:width].to_f
+              orig_aspect_ratio = orig_x/orig_y
+
+              if dimensions and dimensions.length == 3
+                y = dimensions[1].to_f
+                x = dimensions[2].to_f
+                aspect_ratio = x/y
+              else
+                aspect_ratio = orig_aspect_ratio
+              end
+
+              if aspect_ratio != orig_aspect_ratio
+                i.resize "#{spec[:dimensions]}^"
+                i.gravity "center"
+                i.extent spec[:dimensions]
+              else
+                i.resize spec[:dimensions]
+              end
+             # i.crop "#{spec[:dimensions]}+0+0"
             end
             yield image, spec
           end
@@ -79,11 +99,28 @@ module Middleman
             image.format("png", 0)
           end
           image.combine_options do |i|
-            i.resize spec[:dimensions]
-            i.gravity "center"
-            i.crop "#{spec[:dimensions]}+0+0"
+
+            dimensions = /(\d+)\D+(\d+)/.match(spec[:dimensions])
+            orig_y = image[:height].to_f
+            orig_x = image[:width].to_f
+            orig_aspect_ratio = orig_x/orig_y
+
+            if dimensions and dimensions.length == 3
+              y = dimensions[1].to_f
+              x = dimensions[2].to_f
+              aspect_ratio = x/y
+            else
+              aspect_ratio = orig_aspect_ratio
+            end
+
+            if aspect_ratio != orig_aspect_ratio
+              i.resize "#{spec[:dimensions]}^"
+              i.gravity "center"
+              i.extent spec[:dimensions]
+            else
+              i.resize spec[:dimensions]
+            end
           end
-          # return image
         end
         return image
       end
