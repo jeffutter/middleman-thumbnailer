@@ -1,6 +1,5 @@
 require 'fileutils'
 require 'mini_magick'
-require 'pry'
 
 module Middleman
   #actually creates the thumbnail names
