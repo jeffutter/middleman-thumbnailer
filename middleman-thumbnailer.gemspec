@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   # s.add_runtime_dependency("middleman", ["~> 3.2.2"])
   s.add_runtime_dependency("rake", [">= 0"])
   s.add_runtime_dependency("mime-types", ["2.1"])
-  s.add_runtime_dependency("mini_magick", ["~> 3.8.0"])
+  s.add_runtime_dependency("mini_magick", ["~> 4.6.0"])
 
   s.add_development_dependency 'rspec'
 end
